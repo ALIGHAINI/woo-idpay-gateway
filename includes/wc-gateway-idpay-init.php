@@ -70,6 +70,14 @@ function wc_gateway_idpay_init() {
 			 */
 			protected $api_key;
 
+            /**
+             * endpoint.
+             *
+             *
+             * @var string
+             */
+			protected $endpoint;
+
 			/**
 			 * The sandbox mode.
 			 *
@@ -78,6 +86,14 @@ function wc_gateway_idpay_init() {
 			 * @var string
 			 */
 			protected $sandbox;
+
+			/**
+			 * reseller.
+			 *
+			 *
+			 * @var string
+			 */
+			protected $reseller;
 
 			/**
 			 * The payment success message.
@@ -128,11 +144,13 @@ function wc_gateway_idpay_init() {
 				$this->title       = $this->get_option( 'title' );
 				$this->description = $this->get_option( 'description' );
 
+				$this->endpoint = $this->get_option( 'endpoint' );
 				$this->api_key = $this->get_option( 'api_key' );
 				$this->sandbox = $this->get_option( 'sandbox' );
+				$this->reseller = $this->get_option( 'reseller' );
 
-				$this->payment_endpoint = 'https://api.idpay.ir/v1.1/payment';
-				$this->verify_endpoint  = 'https://api.idpay.ir/v1.1/payment/verify';
+				$this->payment_endpoint = $this->endpoint . '/payment';
+				$this->verify_endpoint  = $this->endpoint . '/payment/verify';
 
 				$this->success_message = $this->get_option( 'success_message' );
 				$this->failed_message  = $this->get_option( 'failed_message' );
@@ -205,6 +223,12 @@ function wc_gateway_idpay_init() {
 						'type'        => 'title',
 						'description' => '',
 					),
+					'endpoint'           => array(
+						'title'       => __( 'Endpoint', 'woo-idpay-gateway' ),
+						'type'        => 'text',
+						'description' => '',
+						'default'     => 'https://api.idpay.ir/v1.1',
+					),
 					'api_key'           => array(
 						'title'       => __( 'API Key', 'woo-idpay-gateway' ),
 						'type'        => 'text',
@@ -217,6 +241,12 @@ function wc_gateway_idpay_init() {
 						'description' => __( 'If you check this option, the gateway works in test (sandbox) mode.', 'woo-idpay-gateway' ),
 						'type'        => 'checkbox',
 						'default'     => 'no',
+					),
+					'reseller'           => array(
+                        'title'       => __( 'Reseller', 'woo-idpay-gateway' ),
+                        'type'        => 'text',
+                        'description' => '',
+                        'default'     => '',
 					),
 					'message_confing'   => array(
 						'title'       => __( 'Payment message configuration', 'woo-idpay-gateway' ),
@@ -268,6 +298,7 @@ function wc_gateway_idpay_init() {
 
 				$api_key = $this->api_key;
 				$sandbox = $this->sandbox == 'no' ? 'false' : 'true';
+				$reseller = $this->reseller;
 
 				/** @var \WC_Customer $customer */
 				$customer = $woocommerce->customer;
@@ -298,6 +329,7 @@ function wc_gateway_idpay_init() {
 					'mail'     => $mail,
 					'desc'     => $desc,
 					'callback' => $callback,
+                    'reseller' => $reseller,
 				);
 
 				$headers = array(
